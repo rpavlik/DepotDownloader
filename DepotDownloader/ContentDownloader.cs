@@ -3,13 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using SteamKit2;
-using System.Collections.Concurrent;
-using System.Threading.Tasks;
 
 namespace DepotDownloader
 {
