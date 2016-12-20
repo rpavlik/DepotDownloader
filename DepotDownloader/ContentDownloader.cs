@@ -87,12 +87,21 @@ namespace DepotDownloader
             if (!Config.UsingFileList)
                 return true;
 
-            foreach (string fileListEntry in Config.FilesToDownload)
+            if (Config.FilesToDownload != null)
             {
-                if (fileListEntry.Equals(filename, StringComparison.OrdinalIgnoreCase))
-                    return true;
+
+                foreach (string fileListEntry in Config.FilesToDownload)
+                {
+                    if (fileListEntry.Equals(filename, StringComparison.OrdinalIgnoreCase))
+                        return true;
+                }
+                //Console.WriteLine("Filename {0} didn't make succeed at the file list check, proceeding to regex", filename);
             }
 
+            if (Config.FilesToDownloadRegex == null)
+            {
+                return false;
+            }
             foreach (Regex rgx in Config.FilesToDownloadRegex)
             {
                 Match m = rgx.Match(filename);
