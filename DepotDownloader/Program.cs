@@ -220,7 +220,10 @@ namespace DepotDownloader
             Console.WriteLine("Shutting down...");
             Shutdown();
         }
-
+        static bool IsExceptionAlreadyExists(IOException e)
+        {
+            return e.HResult == -2147024816; /* HRESULT 0x80070050*/
+        }
         void DoGetSteamVRBranch(string branch = "Public")
         {
 
@@ -262,7 +265,14 @@ namespace DepotDownloader
                 }
                 catch (IOException e)
                 {
-                    Console.WriteLine("Metadata file could not be opened: {0}", e.ToString());
+                    if (IsExceptionAlreadyExists(e))
+                    {
+                        Console.WriteLine("Metadata file {0} already exists, continuing...", fn);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Warning: Metadata file could not be opened: {0}", e.ToString());
+                    }
                 }
                 var branchFn = string.Format("steamvr-{0}.{1}.xml", ver.Version, branch);
 
@@ -272,7 +282,15 @@ namespace DepotDownloader
                 }
                 catch (IOException e)
                 {
-                    Console.WriteLine("Could not copy metadata file to branch-specific filename ({0} to {1}): {2}", fn, branchFn, e.ToString());
+
+                    if (IsExceptionAlreadyExists(e))
+                    {
+                        Console.WriteLine("B ranch-specific filename copy ({0} to {1}) already exists, continuing...", fn, branchFn);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Warning: Could not copy metadata file to branch-specific filename ({0} to {1}): {2}", fn, branchFn, e.ToString());
+                    }
                 }
             }
 
