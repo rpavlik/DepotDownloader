@@ -639,10 +639,18 @@ namespace DepotDownloader
                         complete_download_size += file.TotalSize;
                     }
                 });
-                
+
+                // avoid out-of-range degree of parallelism
+                var justAcceptedFiles = filesAfterExclusions.Where(f => !f.Flags.HasFlag(EDepotFileFlag.Directory)).ToList();
+                var parallel = Math.Min(Config.MaxDownloads, justAcceptedFiles.Count());
+
+#if DO_PARALLEL
                 filesAfterExclusions.Where(f => !f.Flags.HasFlag(EDepotFileFlag.Directory))
-                    .AsParallel().WithCancellation(cts.Token).WithDegreeOfParallelism(Config.MaxDownloads)
+                    .AsParallel().WithCancellation(cts.Token).WithDegreeOfParallelism(parallel)
                     .ForAll(file =>
+#else
+                foreach (var file in justAcceptedFiles)
+#endif
                 {
                     string fileFinalPath = Path.Combine(depot.installDir, file.FileName);
                     string fileStagingPath = Path.Combine(stagingDir, file.FileName);
@@ -834,7 +842,10 @@ namespace DepotDownloader
                     fs.Close();
 
                     Console.WriteLine("{0,6:#00.00}% {1}", ((float)size_downloaded / (float)complete_download_size) * 100.0f, fileFinalPath);
-                });
+                }
+#if DO_PARALLEL
+                );
+#endif
 
                 ConfigStore.TheConfig.LastManifests[depot.id] = depot.manifestId;
                 ConfigStore.Save();
