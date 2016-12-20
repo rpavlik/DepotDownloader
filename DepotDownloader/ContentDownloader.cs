@@ -185,7 +185,7 @@ namespace DepotDownloader
             return section_kv;
         }
 
-        static uint GetSteam3AppBuildNumber(uint appId, string branch)
+        static public uint GetSteam3AppBuildNumber(uint appId, string branch)
         {
             if (appId == INVALID_APP_ID)
                 return 0;
@@ -206,7 +206,7 @@ namespace DepotDownloader
             return uint.Parse(buildid.Value);
         }
 
-        static ulong GetSteam3DepotManifest(uint depotId, uint appId, string branch)
+        static public ulong GetSteam3DepotManifest(uint depotId, uint appId, string branch)
         {
             if (Config.ManifestId != INVALID_MANIFEST_ID)
                 return Config.ManifestId;
